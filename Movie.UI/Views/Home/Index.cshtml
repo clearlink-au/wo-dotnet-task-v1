@@ -1,0 +1,70 @@
+﻿@model List<Movie.UI.Controllers.MovieEntity>
+
+@{
+    ViewData["Title"] = "Home Page";
+    var query = ViewContext.HttpContext.Request.Query;
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Search for Movies</h2>
+
+    <!-- Search Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form asp-action="Index" method="get" class="p-4 border rounded shadow-sm bg-light">
+                <!-- Search Text Input -->
+                <div class="form-group mb-3">
+                    <label for="searchText" class="form-label">Movie Title</label>
+                    <input type="text" name="searchText" id="searchText" class="form-control" placeholder="Search by title" value="@query["searchText"]" />
+                </div>
+
+                <!-- Year Dropdown -->
+                <div class="form-group mb-3">
+                    <label for="year" class="form-label">Year</label>
+                    <select name="year" id="year" class="form-control">
+                        <option value="">Select Year</option>
+                        @for (int year = DateTime.Now.Year; year >= 1900; year--)
+                        {
+                            var currentYear = year;  // Assign loop variable to a local variable
+                            <option value="@currentYear" selected="@(query["year"] == currentYear.ToString())">@currentYear</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Search Button -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary px-4">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Display Search Results -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="mt-5">
+            <h3>Search Results</h3>
+            <ul class="list-group mt-3">
+                @foreach (var movie in Model)
+                {
+                    <li class="list-group-item d-flex align-items-center">
+                        <!-- Movie Image -->
+                        <img src="@movie.ImageUrl" alt="@movie.Title" class="img-thumbnail mr-3" style="width: 100px; height: auto;">
+
+                        <!-- Movie Details -->
+                        <div class="flex-grow-1">
+                            <h5>@movie.Title (@movie.Year)</h5>
+                        </div>
+
+                        <!-- View Details Button -->
+                        <a href="@Url.Action("Details", "Home", new { id = movie.Id })" class="btn btn-info ml-3">View Details</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    else if (query.ContainsKey("searchText") || query.ContainsKey("year"))
+    {
+        <p class="text-center mt-4 text-muted">No movies found. Please try different search criteria.</p>
+    }
+</div>
